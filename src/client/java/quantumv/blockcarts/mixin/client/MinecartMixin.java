@@ -56,11 +56,28 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
         containedBlock = Registries.BLOCK.getId(Blocks.AIR).toString();
         setCustomBlockState(Optional.of(Blocks.AIR.getDefaultState()));
     }
+    public ItemStack getPickBlockStack(){
+        ItemStack stack = Items.MINECART.getDefaultStack();
+
+        if (hasBlock) {
+            stack = BlockCarts.BLOCKCART_ITEM.getDefaultStack();
+
+            NbtCompound nbt = new NbtCompound();
+            nbt.putString("block", containedBlock);
+            stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(nbt));
+        }
+        return  stack;
+    }
     public boolean isRideable() {
         return !hasBlock;
     }
     @Inject(at = @At("HEAD"), method="interact", cancellable = true)
     public void interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
+       // if (!this.getWorld().isClient){
+        //    cir.setReturnValue(ActionResult.PASS);
+         //   cir.cancel();
+         //   return;
+        //}
         /*
         if (player.shouldCancelInteraction() && (player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof AirBlockItem) && hasBlock) {
 
@@ -70,24 +87,39 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
             cir.setReturnValue(ActionResult.SUCCESS);
             cir.cancel();
         }*/
-        if (player.shouldCancelInteraction() && ((player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BlockItem) || (player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof AirBlockItem) ){
+        if (player.shouldCancelInteraction() && ((player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BlockItem) || (player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof AirBlockItem) )){
             if (hasBlock){
                 ItemStack stack = Registries.BLOCK.get(Identifier.tryParse((containedBlock))).asItem().getDefaultStack();
                 resetContainedBlock();
-                playSound(SoundEvents.ENTITY_ITEM_FRAME_REMOVE_ITEM, 1, 1);
+                if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof AirBlockItem) {
+                    playSound(SoundEvents.ENTITY_ITEM_FRAME_REMOVE_ITEM, 1, 1);
+                }
                 player.giveItemStack(stack);
             }
-            setCustomBlockState(Optional.of(((BlockItem) player.getStackInHand(Hand.MAIN_HAND).getItem()).getBlock().getDefaultState()));
-            playSound(SoundEvents.BLOCK_STONE_PLACE, 1, 1);
-            hasBlock = true;
-            containedBlock = Registries.BLOCK.getId(((BlockItem) player.getStackInHand(Hand.MAIN_HAND).getItem()).getBlock()).toString();
-            player.getStackInHand(Hand.MAIN_HAND).decrement(1);
+            Block bl = Blocks.AIR;
+            if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BlockItem){
+                bl = ((BlockItem)player.getStackInHand(Hand.MAIN_HAND).getItem()).getBlock();
+            }
+            setCustomBlockState(Optional.of(bl.getDefaultState()));
+
+
+            containedBlock = Registries.BLOCK.getId(bl).toString();
+            if(player.getStackInHand(Hand.MAIN_HAND).getItem() instanceof BlockItem) {
+                playSound(SoundEvents.BLOCK_STONE_PLACE, 1, 1);
+                hasBlock = true;
+                player.getStackInHand(Hand.MAIN_HAND).decrement(1);
+            }
+            else{
+                hasBlock = false;
+            }
             cir.setReturnValue(ActionResult.SUCCESS);
             cir.cancel();
+            return;
         }
         if (hasBlock) {
             cir.setReturnValue(ActionResult.PASS);
             cir.cancel();
+            return;
             //return ActionResult.PASS;
         }
     }
