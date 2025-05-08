@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "quantumv.blockcarts.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+		"ExampleClientMixin",
+		"MinecartMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
