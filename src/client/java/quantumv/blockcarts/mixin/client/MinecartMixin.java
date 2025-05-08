@@ -1,14 +1,14 @@
 package quantumv.blockcarts.mixin.client;
 
 import com.mojang.logging.LogUtils;
-import net.minecraft.block.AirBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
+import net.minecraft.block.*;
 import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.FallingBlockEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
@@ -20,6 +20,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryOps;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.property.Property;
@@ -27,7 +28,9 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -68,9 +71,41 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
         }
         return  stack;
     }
+    public Item asItem() {
+        return Items.MINECART;//hasBlock ? BlockCarts.BLOCKCART_ITEM : Items.MINECART ;
+    }
     public boolean isRideable() {
         return !hasBlock;
     }
+    public  boolean damage(ServerWorld world, DamageSource source, float amount){
+        if (source.getAttacker() instanceof PlayerEntity) {
+            PlayerEntity player = (PlayerEntity) source.getAttacker();
+            if (player.shouldCancelInteraction()){
+                ItemStack stack = asItem().getDefaultStack();
+                if (hasBlock){
+                    NbtCompound n = new NbtCompound();
+                    n.putString("block", containedBlock);
+                    stack = BlockCarts.BLOCKCART_ITEM.getDefaultStack();
+                    stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(n));
+                }
+                dropStack(world, stack);
+                this.remove(Entity.RemovalReason.KILLED);
+            }
+        }
+        return super.damage(world, source, amount);
+    }
+    public void kill(ServerWorld world) {
+        if (hasBlock){
+            playSound(SoundEvents.BLOCK_STONE_BREAK, 1, 1);
+            FallingBlockEntity fall = FallingBlockEntity.spawnFromBlock(world, getBlockPos(), Registries.BLOCK.get(Identifier.tryParse(containedBlock)).getDefaultState());
+            fall.addVelocity(new Vec3d(0,0.5,0));
+            world.spawnEntity(fall);
+        }
+        this.remove(Entity.RemovalReason.KILLED);
+        this.emitGameEvent(GameEvent.ENTITY_DIE);
+    }
+
+
     @Inject(at = @At("HEAD"), method="interact", cancellable = true)
     public void interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
        // if (!this.getWorld().isClient){
