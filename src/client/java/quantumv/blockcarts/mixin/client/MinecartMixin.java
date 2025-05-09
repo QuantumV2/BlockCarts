@@ -1,52 +1,37 @@
 package quantumv.blockcarts.mixin.client;
 
-import com.mojang.logging.LogUtils;
 import net.minecraft.block.*;
-import net.minecraft.component.ComponentMap;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.NbtComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryOps;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-import org.slf4j.LoggerFactory;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import quantumv.blockcarts.BlockCartItem;
 import quantumv.blockcarts.BlockCarts;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Mixin(MinecartEntity.class)
-public abstract class MinecartMixin extends AbstractMinecartEntity {
+public abstract class MinecartMixin extends AbstractMinecartEntity  {
+
     private String containedBlock = Registries.BLOCK.getId(Blocks.AIR).toString();
 
     //private static final TrackedData<Optional<BlockState>> CUSTOM_BLOCK_STATE = null;
@@ -59,6 +44,7 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
         containedBlock = Registries.BLOCK.getId(Blocks.AIR).toString();
         setCustomBlockState(Optional.of(Blocks.AIR.getDefaultState()));
     }
+
     public ItemStack getPickBlockStack(){
         ItemStack stack = Items.MINECART.getDefaultStack();
 
@@ -94,6 +80,7 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
         }
         return super.damage(world, source, amount);
     }
+
     public void kill(ServerWorld world) {
         if (hasBlock){
             playSound(SoundEvents.BLOCK_STONE_BREAK, 1, 1);
@@ -224,6 +211,7 @@ public abstract class MinecartMixin extends AbstractMinecartEntity {
         //containedBlock = readBlockStateFromNbt(nbt, "ContainedBlock");
         //LogUtils.getLogger().info(String.valueOf(containedBlock));
     }
+
 
 
 

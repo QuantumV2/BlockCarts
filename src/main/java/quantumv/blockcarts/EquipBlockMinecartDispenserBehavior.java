@@ -1,11 +1,9 @@
 package quantumv.blockcarts;
 
 import net.minecraft.block.DispenserBlock;
-import net.minecraft.block.dispenser.EquippableDispenserBehavior;
 import net.minecraft.block.dispenser.ItemDispenserBehavior;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.block.dispenser.MinecartDispenserBehavior;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -21,7 +19,7 @@ import net.minecraft.util.math.Direction;
 import java.util.List;
 import java.util.Optional;
 
-public class EquipBlockMinecartDispenserBehavior  extends ItemDispenserBehavior {
+public class EquipBlockMinecartDispenserBehavior  extends ItemDispenserBehavior{
     public static final EquipBlockMinecartDispenserBehavior INSTANCE = new EquipBlockMinecartDispenserBehavior();
 
     public EquipBlockMinecartDispenserBehavior() {
@@ -30,7 +28,9 @@ public class EquipBlockMinecartDispenserBehavior  extends ItemDispenserBehavior 
     protected ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack) {
         return _dispense(pointer, stack) ? stack : super.dispenseSilently(pointer, stack);
     }
-
+    static void registerDefaults() {
+        DispenserBlock.registerBehavior(BlockCarts.BLOCKCART_ITEM, new MinecartDispenserBehavior(EntityType.MINECART));
+    }
     public static boolean _dispense(BlockPointer pointer, ItemStack stack) {
         BlockPos blockPos = pointer.pos().offset((Direction)pointer.state().get(DispenserBlock.FACING));
         List<MinecartEntity> list = pointer.world().getEntitiesByClass(MinecartEntity.class, new Box(blockPos), (entity) -> {
