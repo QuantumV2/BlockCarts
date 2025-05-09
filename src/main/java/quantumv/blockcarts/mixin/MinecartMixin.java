@@ -1,4 +1,4 @@
-package quantumv.blockcarts.mixin.client;
+package quantumv.blockcarts.mixin;
 
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;

@@ -3,7 +3,9 @@
 	"package": "quantumv.blockcarts.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"MinecartMixin",
+		"DispenserMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
