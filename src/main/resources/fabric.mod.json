@@ -3,15 +3,15 @@
 	"id": "blockcarts",
 	"version": "${version}",
 	"name": "BlockCarts",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Place any block into Minecarts!",
 	"authors": [
-		"Me!"
+		"QuantumV"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/QuantumV2",
+		"sources": "https://github.com/QuantumV2/BlockCarts"
 	},
-	"license": "CC0-1.0",
+	"license": "CC-BY-4.0",
 	"icon": "assets/blockcarts/icon.png",
 	"environment": "*",
 	"entrypoints": {
